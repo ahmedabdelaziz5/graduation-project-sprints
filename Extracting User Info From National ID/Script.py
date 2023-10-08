@@ -1,36 +1,33 @@
 import cv2
 from pytesseract import pytesseract
+import db
 
 # Defining paths to tesseract.exe
 pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
 # Defining paths to the image we would be using
-image_path = "2.jpg"
+image_path = "4.jpg"
 
 # Pre-Processing Image
 img = cv2.imread(image_path)
-img = img[img.shape[0]//4:img.shape[0]*2//3, img.shape[1]*2//-3:]
-img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-img = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 85, 33)
+resized_img = cv2.resize(img, (712, 512), interpolation=cv2.INTER_AREA)
+cropped_img = resized_img[resized_img.shape[0]*-7//24:resized_img.shape[0]*-1//10, resized_img.shape[1]*3//-5:]
+gray_img = cv2.cvtColor(cropped_img, cv2.COLOR_BGR2GRAY)
+img = cv2.adaptiveThreshold(gray_img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 21, 16)
 
 # Convert image to text
-obj = pytesseract.image_to_string(img, lang='ara')
+obj = pytesseract.image_to_string(img, lang='ara_number', config='--psm 7')
+text = obj.replace(' ', '')[:14]
 
-# Extracting text and removing symbols
-text = ''
-for i in range(len(obj)):
-    if obj[i] in '@#$%^&*_+=,.:|;©\'"':
-        continue
-    text += obj[i]
-text = text[:-1]
+# save in database
+try: # if id exists, ignore it
+    db.insert_id(text)
+except:
+    pass
 
-# Displaying the extracted text
-print(text)
-
-# save file
-with open('Information Output.txt', 'w', encoding="utf-8") as file:
-    file.write(text)
+db.getIDs()
 
 # show image after Processing
 cv2.imshow("Display window", img)
 k = cv2.waitKey(0)
+
