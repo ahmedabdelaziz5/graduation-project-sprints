@@ -1,6 +1,0 @@
-Python 3.11.5
-pip 23.2.1
-cv2 4.8.0
-tesseract 5.3.1.20230401
-
-Put 'arabic_numbers' in 'C:\Program Files\Tesseract-OCR\tessdata'
